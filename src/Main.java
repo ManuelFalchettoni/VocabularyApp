@@ -1,39 +1,72 @@
-import java.util.Scanner; // We need this tool to read your keyboard input
-
-public class Main {
-    public static void main(String[] args) {
-        // 1. Initialize the Scanner
-        Scanner scanner = new Scanner(System.in);
-
-        System.out.println("--- GERMAN VOCABULARY MANAGER v1.0 ---");
-        System.out.println("Ready to add a new word?\n");
-
-        // 2. Capture German Word
-        System.out.print("Enter German word (e.g., 'Das Haus'): ");
-        String germanWord = scanner.nextLine();
-
-        // 3. Capture English Translation (C1 Practice!)
-        System.out.print("Enter English translation: ");
-        String englishWord = scanner.nextLine();
-
-        // 4. Capture Word Type
-        System.out.print("Word type (Noun, Verb, Adjective): ");
-        String wordType = scanner.nextLine();
-
-        //5. Capture Level of Difficulty
-        System.out.print("Level of Difficulty (1 to 5): ");
-        Integer levelDifficulty = scanner.nextInt();
-
-        // 5. Display the result in a clean format
-        System.out.println("\n-------------------------------------");
-        System.out.println("WORD SAVED SUCCESSFULLY!");
-        System.out.println("Category: [" + wordType.toUpperCase() + "]");
-        System.out.println("German: " + germanWord);
-        System.out.println("English: " + englishWord);
-        System.out.println("Level: " + levelDifficulty);
-        System.out.println("-------------------------------------");
-
-        // Close the scanner to be efficient with resources
-        scanner.close();
+import java.util.Scanner; // We need this tool to read your keyboard input//
+import java.util.ArrayList;
+/**
+ * A 'Record' is a modern, concise way to model data in Java.
+ * It automatically handles fields, getters, and the constructor.
+ * This specific record stores our language learning data.
+ */
+record VocabularyEntry(String german, String english, String type) {
+    @Override
+    public String toString() {
+        // Formats the output: [NOUN] Das Haus -> The House
+        return String.format("[%s] %s -> %s", type.toUpperCase(), german, english);
     }
+}
+/* We no longer need 'public static void main(String[] args)'.*/
+void main() {
+    // 'var' allows the compiler to infer the type, making the code cleaner.
+    var scanner = new Scanner(System.in);
+
+    // This ArrayList will store our VocabularyEntry objects in memory.
+    var myNotebook = new ArrayList<VocabularyEntry>();
+
+    System.out.println("--- WELCOME TO YOUR LANGUAGES NOTEBOOK (Java 25) ---");
+
+    // The 'while(true)' loop keeps the program running until the user decides to exit.
+    while (true) {
+        System.out.println("\nOptions: (1) Add word (2) View list (3) Exit");
+        System.out.print("Select an option: ");
+        var option = scanner.nextLine();
+
+        // Check if the user wants to terminate the program
+        if (option.equals("3")) {
+            System.out.println("Exiting the program...");
+            break;
+        }
+
+        if (option.equals("1")) {
+
+            // STEP 1: Data Acquisition
+            System.out.print("Enter the German word: ");
+            var de = scanner.nextLine();
+
+            System.out.print("Enter the English translation: ");
+            var en = scanner.nextLine();
+
+            System.out.print("Enter the word type (e.g., Noun, Verb): ");
+            var type = scanner.nextLine();
+
+            // STEP 2: Object Creation & Storage
+            // We instantiate the record and add it to our collection
+            myNotebook.add(new VocabularyEntry(de, en, type));
+            System.out.println("Word successfully saved to your list!");
+
+        } else if (option.equals("2")) {
+            // STEP 3: Data Retrieval
+            if (myNotebook.isEmpty()) {
+                System.out.println("Your notebook is currently empty.");
+            } else {
+                System.out.println("\n--- CURRENT VOCABULARY LIST ---");
+                // Using a method reference to print each item in the list
+                myNotebook.forEach(System.out::println);
+            }
+        } else {
+            // Handling invalid inputs
+            System.out.println("Invalid option. Please try again.");
+        }
+    }
+
+    // Clean up: closing the scanner to prevent resource leaks
+    System.out.println("Happy learning! Bis bald!");
+    scanner.close();
 }
