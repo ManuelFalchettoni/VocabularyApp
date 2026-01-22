@@ -1,13 +1,39 @@
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-void main() {
-  //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-  // to see how IntelliJ IDEA suggests fixing it.
-  IO.println(String.format("Hello and welcome!"));
+import java.util.Scanner; // We need this tool to read your keyboard input
 
-  for (int i = 1; i <= 5; i++) {
-    //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-    // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-    IO.println("i = " + i);
-  }
+public class Main {
+    public static void main(String[] args) {
+        // 1. Initialize the Scanner
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("--- GERMAN VOCABULARY MANAGER v1.0 ---");
+        System.out.println("Ready to add a new word?\n");
+
+        // 2. Capture German Word
+        System.out.print("Enter German word (e.g., 'Das Haus'): ");
+        String germanWord = scanner.nextLine();
+
+        // 3. Capture English Translation (C1 Practice!)
+        System.out.print("Enter English translation: ");
+        String englishWord = scanner.nextLine();
+
+        // 4. Capture Word Type
+        System.out.print("Word type (Noun, Verb, Adjective): ");
+        String wordType = scanner.nextLine();
+
+        //5. Capture Level of Difficulty
+        System.out.print("Level of Difficulty (1 to 5): ");
+        Integer levelDifficulty = scanner.nextInt();
+
+        // 5. Display the result in a clean format
+        System.out.println("\n-------------------------------------");
+        System.out.println("WORD SAVED SUCCESSFULLY!");
+        System.out.println("Category: [" + wordType.toUpperCase() + "]");
+        System.out.println("German: " + germanWord);
+        System.out.println("English: " + englishWord);
+        System.out.println("Level: " + levelDifficulty);
+        System.out.println("-------------------------------------");
+
+        // Close the scanner to be efficient with resources
+        scanner.close();
+    }
 }
