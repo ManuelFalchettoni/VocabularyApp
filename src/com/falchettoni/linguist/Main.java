@@ -1,18 +1,7 @@
+import com.falchettoni.linguist.model.VocabularyEntry;
+
 import java.util.Scanner; // We need this tool to read your keyboard input//
 import java.util.ArrayList;
-
-/**
- * A 'Record' is a modern, concise way to model data in Java.
- * It automatically handles fields, getters, and the constructor.
- * This specific record stores our language learning data.
- */
-record VocabularyEntry(String german, String english, String type, Integer level) {
-    @Override
-    public String toString() {
-        // Formats the output: [NOUN] Das Haus -> The House
-        return String.format("[%s] %s -> %s (Level: %d)", type.toUpperCase(), german, english, level);
-    }
-}
 
 /* We no longer need 'public static void main(String[] args)'.*/
 void main() {
@@ -30,6 +19,7 @@ void main() {
         System.out.println("\nOptions: Add word (1) - View list (2) - Exit (3)");
         System.out.print("Select an option: ");
         var option = scanner.nextLine();
+        // Parse String to Integer
         int optionInt;
         try {
             optionInt = Integer.parseInt(option);
