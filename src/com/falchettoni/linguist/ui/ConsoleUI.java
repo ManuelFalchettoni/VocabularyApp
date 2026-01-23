@@ -57,8 +57,13 @@ public class ConsoleUI {
                     }
                     // Object Creation & Storage
                     // We instantiate the record and add it to our collection
-                    myNotebook.add(new VocabularyEntry(de, en, type, level));
-                    System.out.println("Word successfully saved to your list!");
+                    if (fileService.isDuplicate(de, myNotebook)){
+                        System.out.println("This word already exists in your vocabulary list. Duplicate entries are not allowed.");
+                        // Skip adding this word
+                    }else {
+                        myNotebook.add(new VocabularyEntry(de, en, type, level));
+                        System.out.println("Word successfully saved to your list!");
+                    }
                 }
                 case 2 -> {
                     //Data Retrieval
@@ -69,6 +74,8 @@ public class ConsoleUI {
                         // Using a method reference to print each item in the list
                         myNotebook.forEach(System.out::println);
                     }
+                    System.out.println("Number of words in your notebook: " + fileService.countTotalWords(myNotebook));
+                    System.out.println("--- END OF LIST ---");
                 }
                 case 3 -> {
                     System.out.println("Exiting the program...");

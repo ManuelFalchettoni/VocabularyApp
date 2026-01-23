@@ -92,5 +92,52 @@ public class FileService {
         System.out.println("Word '" + germanWord + "' updated in vocabulary if it existed.");
     }
 
+    //Method to search for duplicates in the vocabulary
+    public boolean isDuplicate(String germanWord, List<VocabularyEntry> currentList) { // Check for duplicates
+        return currentList.stream()
+                .anyMatch(entry -> entry.german().equalsIgnoreCase(germanWord.trim()));// Check for duplicates ignoring case and whitespace
+    }
 
+    //Method to get all words of a specific level
+    public ArrayList<VocabularyEntry> getWordsByLevel(int level, List<VocabularyEntry> vocabulary) {
+        ArrayList<VocabularyEntry> filteredWords = new ArrayList<>();
+        for (VocabularyEntry entry : vocabulary) {// Iterate through the vocabulary list
+            if (entry.level() == level) {
+                filteredWords.add(entry); // Add entry if it matches the specified level
+            }
+        }
+        return filteredWords; // Return the list of filtered words
+    }
+
+    //Method to get all words of a specific type
+    public ArrayList<VocabularyEntry> getWordsByType(String type, List<VocabularyEntry> vocabulary) {
+        ArrayList<VocabularyEntry> filteredWords = new ArrayList<>();
+        for (VocabularyEntry entry : vocabulary) {
+            if (entry.type().equalsIgnoreCase(type.trim())) {// Iterate through the vocabulary list
+                filteredWords.add(entry); // Add entry if it matches the specified type
+            }
+        }
+        return filteredWords; // Return the list of filtered words
+    }
+
+
+    //Method to clear the entire vocabulary
+    public void clearVocabulary() {
+        saveVocabulary(new ArrayList<>()); // Save an empty list to the file
+        System.out.println("All vocabulary entries have been cleared.");
+    }
+
+    //Method to count total words in the vocabulary
+    public int countTotalWords(List<VocabularyEntry> vocabulary) {
+        return vocabulary.size(); // Return the size of the vocabulary list
+    }
+
+    //Method to get a random word from the vocabulary
+    public VocabularyEntry getRandomWord(List<VocabularyEntry> vocabulary) {
+        if (vocabulary.isEmpty()) {
+            return null; // Return null if the vocabulary is empty
+        }
+        int randomIndex = (int) (Math.random() * vocabulary.size()); // Generate a random index
+        return vocabulary.get(randomIndex); // Return the random entry
+    }
 }
