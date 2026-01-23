@@ -23,7 +23,6 @@ public class FileService {
             for (VocabularyEntry entry : vocabulary) {
                 writer.printf("%s;%s;%s;%d%n", entry.german(), entry.english(), entry.type(), entry.level()); // Write each entry in the specified format
             }
-            System.out.println("Vocabulary successfully saved to " + filePath);
         } catch (FileNotFoundException e) {
             System.err.println("Error saving vocabulary: " + e.getMessage());
         }
@@ -49,7 +48,6 @@ public class FileService {
                     vocabulary.add(new VocabularyEntry(de, en, type, level)); // Create and add the entry
                 }
             }
-            System.out.println("Vocabulary successfully loaded from " + filePath);
         } catch (FileNotFoundException e) {
             System.err.println("Error loading vocabulary: " + e.getMessage());
         }
@@ -57,18 +55,21 @@ public class FileService {
     }
 
     // Method to delete a word from the vocabulary
-    public void deleteWord(String germanWord) {
-        ArrayList<VocabularyEntry> vocabulary = loadVocabulary();// Load existing vocabulary
+    public void deleteWord(String germanWord, List<VocabularyEntry> vocabulary) {
         List<VocabularyEntry> updatedVocabulary = vocabulary.stream() // Create a stream from the vocabulary list
                 .filter(entry -> !entry.german().equalsIgnoreCase(germanWord))// Remove the entry with the specified German word
                 .toList(); // Collect the remaining entries into a new list
-        saveVocabulary(new ArrayList<>(updatedVocabulary));// Convert back to ArrayList
-        System.out.println("Word '" + germanWord + "' deleted from vocabulary if it existed.");
+        try {
+            saveVocabulary(new ArrayList<>(updatedVocabulary));// Convert back to ArrayList
+            System.out.println("Word '" + germanWord + "' deleted from vocabulary if it existed.");
+        } catch (Exception e) {
+            System.err.println("Error saving the file: " + e.getMessage());
+        }
+
     }
 
     // Method to search for a word in the vocabulary
-    public VocabularyEntry searchWord(String germanWord) {
-        ArrayList<VocabularyEntry> vocabulary = loadVocabulary();
+    public VocabularyEntry searchWord(String germanWord, List<VocabularyEntry> vocabulary) {
         for (VocabularyEntry entry : vocabulary) {
             if (entry.german().equalsIgnoreCase(germanWord)) {
                 return entry; // Word found
@@ -78,18 +79,25 @@ public class FileService {
     }
 
     //Method to update a word in the vocabulary
-    public void updateWord(String germanWord, VocabularyEntry updatedEntry) {
-        ArrayList<VocabularyEntry> vocabulary = loadVocabulary(); // Load existing vocabulary
-        ArrayList<VocabularyEntry> updatedVocabulary = new ArrayList<>(); // New list to hold updated entries
-        for (VocabularyEntry entry : vocabulary) {
-            if (entry.german().equalsIgnoreCase(germanWord)) {
-                updatedVocabulary.add(updatedEntry); // Add the updated entry
-            } else {
-                updatedVocabulary.add(entry); // Keep the existing entry
+    public void updateWord(String germanWord, VocabularyEntry updatedEntry, List<VocabularyEntry> vocabulary) {
+        boolean found = false;
+        for (int i = 0; i < vocabulary.size(); i++) {
+            if (vocabulary.get(i).german().equalsIgnoreCase(germanWord)) {
+                vocabulary.set(i, updatedEntry); // Replace the old entry with the updated one
+                found = true;
+                break;
             }
         }
-        saveVocabulary(updatedVocabulary); // Save the updated vocabulary back to the file
-        System.out.println("Word '" + germanWord + "' updated in vocabulary if it existed.");
+        if (found) {
+            try {
+                saveVocabulary(new ArrayList<>(vocabulary));
+                System.out.println("✅ Word '" + germanWord + "' successfully updated.");
+            } catch (Exception e) {
+                System.err.println("Error saving the file: " + e.getMessage());
+            }
+        } else {
+            System.out.println("Word '" + germanWord + "' not found in vocabulary. No update performed.");
+        }
     }
 
     //Method to search for duplicates in the vocabulary
@@ -123,8 +131,12 @@ public class FileService {
 
     //Method to clear the entire vocabulary
     public void clearVocabulary() {
-        saveVocabulary(new ArrayList<>()); // Save an empty list to the file
-        System.out.println("All vocabulary entries have been cleared.");
+        try {
+            saveVocabulary(new ArrayList<>()); // Save an empty list to the file
+        } catch (Exception e) {
+            System.err.println("Error clearing vocabulary: " + e.getMessage());
+        }
+
     }
 
     //Method to count total words in the vocabulary
