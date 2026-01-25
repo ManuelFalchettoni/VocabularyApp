@@ -8,8 +8,9 @@ import java.util.List;
 import java.util.Scanner;
 
 import com.falchettoni.linguist.model.VocabularyEntry;
+import com.falchettoni.linguist.repository.VocabularyRepository;
 
-public class FileService {
+public class FileService implements VocabularyRepository {
     private final String filePath;
 
     // Constructor to initialize file path
@@ -18,7 +19,8 @@ public class FileService {
     }
 
     // Method to save vocabulary to file
-    public void saveVocabulary(ArrayList<VocabularyEntry> vocabulary) {
+    @Override
+    public void saveVocabulary(List<VocabularyEntry> vocabulary) {
         try (PrintWriter writer = new PrintWriter(filePath)) { // Create PrintWriter to write to the file
             for (VocabularyEntry entry : vocabulary) {
                 writer.printf("%s;%s;%s;%d%n", entry.german(), entry.english(), entry.type(), entry.level()); // Write each entry in the specified format
@@ -29,6 +31,7 @@ public class FileService {
     }
 
     // Method to load vocabulary from file
+    @Override
     public ArrayList<VocabularyEntry> loadVocabulary() {
         ArrayList<VocabularyEntry> vocabulary = new ArrayList<>();
         File file = new File(filePath);
@@ -55,12 +58,13 @@ public class FileService {
     }
 
     // Method to delete a word from the vocabulary
-    public boolean deleteWord(String germanWord, List<VocabularyEntry> vocabulary) {
-        boolean removed = vocabulary.removeIf(entry -> entry.german().equalsIgnoreCase(germanWord)); // Remove entry if it matches the german word
+    @Override
+    public boolean deleteWord(String word, List<VocabularyEntry> vocabulary) {
+        boolean removed = vocabulary.removeIf(entry -> entry.german().equalsIgnoreCase(word)); // Remove entry if it matches the german word
         if (removed) {
             try {
                 saveVocabulary(new ArrayList<>(vocabulary)); // Save the updated vocabulary
-                System.out.println("✅ Word '" + germanWord + "' successfully deleted.");
+                System.out.println("✅ Word '" + word + "' successfully deleted.");
             } catch (Exception e) {
                 System.err.println("Error saving the file: " + e.getMessage());
             }
@@ -69,20 +73,20 @@ public class FileService {
     }
 
     // Method to search for a word in the vocabulary
-    public VocabularyEntry searchWord(String germanWord, List<VocabularyEntry> vocabulary) {
-        for (VocabularyEntry entry : vocabulary) {
-            if (entry.german().equalsIgnoreCase(germanWord)) {
-                return entry; // Word found
-            }
-        }
-        return null; // Word not found
+    @Override
+    public VocabularyEntry findByWord(String word, List<VocabularyEntry> vocabulary) {
+        return vocabulary.stream()
+                .filter(e -> e.german().equalsIgnoreCase(word))
+                .findFirst()
+                .orElse(null);
     }
 
     //Method to update a word in the vocabulary
-    public void updateWord(String germanWord, VocabularyEntry updatedEntry, List<VocabularyEntry> vocabulary) {
+    @Override
+    public void updateWord(String word, VocabularyEntry updatedEntry, List<VocabularyEntry> vocabulary) {
         boolean found = false;
         for (int i = 0; i < vocabulary.size(); i++) {
-            if (vocabulary.get(i).german().equalsIgnoreCase(germanWord)) {
+            if (vocabulary.get(i).german().equalsIgnoreCase(word)) {
                 vocabulary.set(i, updatedEntry); // Replace the old entry with the updated one
                 found = true;
                 break;
@@ -91,41 +95,35 @@ public class FileService {
         if (found) {
             try {
                 saveVocabulary(new ArrayList<>(vocabulary));
-                System.out.println("✅ Word '" + germanWord + "' successfully updated.");
+                System.out.println("✅ Word '" + word + "' successfully updated.");
             } catch (Exception e) {
                 System.err.println("Error saving the file: " + e.getMessage());
             }
         } else {
-            System.out.println("Word '" + germanWord + "' not found in vocabulary. No update performed.");
+            System.out.println("Word '" + word + "' not found in vocabulary. No update performed.");
         }
     }
 
     //Method to search for duplicates in the vocabulary
-    public boolean isDuplicate(String germanWord, List<VocabularyEntry> currentList) { // Check for duplicates
+    public boolean isDuplicate(String word, List<VocabularyEntry> currentList) { // Check for duplicates
         return currentList.stream()
-                .anyMatch(entry -> entry.german().equalsIgnoreCase(germanWord.trim()));// Check for duplicates ignoring case and whitespace
+                .anyMatch(entry -> entry.german().equalsIgnoreCase(word.trim()));// Check for duplicates ignoring case and whitespace
     }
 
     //Method to get all words of a specific level
-    public ArrayList<VocabularyEntry> getWordsByLevel(int level, List<VocabularyEntry> vocabulary) {
-        ArrayList<VocabularyEntry> filteredWords = new ArrayList<>();
-        for (VocabularyEntry entry : vocabulary) {// Iterate through the vocabulary list
-            if (entry.level() == level) {
-                filteredWords.add(entry); // Add entry if it matches the specified level
-            }
-        }
-        return filteredWords; // Return the list of filtered words
+    @Override
+    public List<VocabularyEntry> findByLevel(int level, List<VocabularyEntry> vocabulary) {
+        return vocabulary.stream()
+                .filter(e -> e.level() == level)
+                .toList();
     }
 
     //Method to get all words of a specific type
-    public ArrayList<VocabularyEntry> getWordsByType(String type, List<VocabularyEntry> vocabulary) {
-        ArrayList<VocabularyEntry> filteredWords = new ArrayList<>();
-        for (VocabularyEntry entry : vocabulary) {
-            if (entry.type().equalsIgnoreCase(type.trim())) {// Iterate through the vocabulary list
-                filteredWords.add(entry); // Add entry if it matches the specified type
-            }
-        }
-        return filteredWords; // Return the list of filtered words
+    @Override
+    public List<VocabularyEntry> findByType(String type, List<VocabularyEntry> vocabulary) {
+        return vocabulary.stream()
+                .filter(e -> e.type().equalsIgnoreCase(type))
+                .toList();
     }
 
 
@@ -140,12 +138,26 @@ public class FileService {
     }
 
     //Method to count total words in the vocabulary
-    public int countTotalWords(List<VocabularyEntry> vocabulary) {
+    @Override
+    public int countTotal(List<VocabularyEntry> vocabulary) {
         return vocabulary.size(); // Return the size of the vocabulary list
     }
 
-    public int countWordsByLevel(List<VocabularyEntry> vocabulary){
+    // Method to count total words by level
+    @Override
+    public int countByLevel(int level, List<VocabularyEntry> vocabulary){
+        return (int) vocabulary.stream()
+                .filter(e -> e.level() == level)
+                .count();
 
+    }
+
+    //Method to count by type
+    @Override
+    public int countByType(String type, List<VocabularyEntry> vocabulary){
+        return (int) vocabulary.stream()
+                .filter(e -> e.type().equalsIgnoreCase(type))
+                .count();
     }
 
     //Method to get a random word from the vocabulary

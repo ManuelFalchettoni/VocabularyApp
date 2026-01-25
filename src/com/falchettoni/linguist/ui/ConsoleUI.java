@@ -85,7 +85,7 @@ public class ConsoleUI {
             // Using a method reference to print each item in the list
             myNotebook.forEach(System.out::println);
         }
-        System.out.println("Number of words in your notebook: " + fileService.countTotalWords(myNotebook));
+        System.out.println("Number of words in your notebook: " + fileService.countTotal(myNotebook));
         System.out.println("--- END OF LIST ---");
     }
 
@@ -93,7 +93,7 @@ public class ConsoleUI {
     private void handleUpdateWord() {
         System.out.println("Enter the German word you want to update: ");
         var germanWord = scanner.nextLine();// Input for the German word to update
-        var entry = fileService.searchWord(germanWord, myNotebook);// Search for the word in the vocabulary
+        var entry = fileService.findByWord(germanWord, myNotebook);// Search for the word in the vocabulary
         if (entry != null) {// If the word is found
             System.out.println("Current entry: " + entry); // Display current entry
             // Prompt for new values
@@ -135,7 +135,7 @@ public class ConsoleUI {
     private void handleSearchWord() {
         System.out.println("Enter the German word you want to search for: ");
         var germanWordToSearch = scanner.nextLine(); // Input for the German word to search
-        var foundEntry = fileService.searchWord(germanWordToSearch, myNotebook); //
+        var foundEntry = fileService.findByWord(germanWordToSearch, myNotebook); //
         if (foundEntry != null) { // If the word is found
             System.out.println("Found entry: " + foundEntry);
         } else { // If the word is not found
@@ -146,7 +146,7 @@ public class ConsoleUI {
     private void handleViewByLevel() {
         System.out.println("Enter the level (1-5) you want to view: ");
         int levelToView = parseIntegerInput(1); // Default level is 1
-        var resultsByLevel = fileService.getWordsByLevel(levelToView, myNotebook);
+        var resultsByLevel = fileService.findByLevel(levelToView, myNotebook);
         if (resultsByLevel.isEmpty()) {
             System.out.println("No words found at level " + levelToView + ".");
         } else {
@@ -158,7 +158,7 @@ public class ConsoleUI {
     private void handleViewByType() {
         System.out.println("Enter the word type you want to view (e.g., Noun, Verb): ");
         var typeToView = scanner.nextLine(); // Input for the type to view
-        var resultsByType = fileService.getWordsByType(typeToView, myNotebook);
+        var resultsByType = fileService.findByType(typeToView, myNotebook);
         if (resultsByType.isEmpty()) {
             System.out.println("No words found of type '" + typeToView + "'.");
         } else {

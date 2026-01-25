@@ -8,7 +8,7 @@ public interface VocabularyRepository {
     List<VocabularyEntry> loadVocabulary(); // Method to load vocabulary entries
     void saveVocabulary(List<VocabularyEntry> vocabulary); // Method to save vocabulary entries
     boolean deleteWord(String word, List<VocabularyEntry> vocabulary); // Method to delete a vocabulary entry by  word
-    void update (String word,VocabularyEntry newEntry, List<VocabularyEntry> vocabulary); // Method to update a vocabulary entry by  word
+    void updateWord (String word,VocabularyEntry newEntry, List<VocabularyEntry> vocabulary); // Method to update a vocabulary entry by  word
 
     List<VocabularyEntry> findByType(String type, List<VocabularyEntry> vocabulary); // Method to find vocabulary entries by type
     List<VocabularyEntry> findByLevel(int level, List<VocabularyEntry> vocabulary); // Method to find vocabulary entries by level
