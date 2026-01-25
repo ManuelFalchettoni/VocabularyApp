@@ -125,7 +125,10 @@ public class ConsoleUI {
     private void handleDeleteWord() {
         System.out.println("Enter the German word you want to delete: ");
         var germanWordToDelete = scanner.nextLine(); // Input for the German word to delete
-        fileService.deleteWord(germanWordToDelete, myNotebook); // Delete the word from the vocabulary
+        boolean deleted = fileService.deleteWord(germanWordToDelete, myNotebook); // Attempt to delete the word
+        if (!deleted) { // If the word was not found and thus not deleted
+            System.out.println("Word not found in your vocabulary list. No deletion performed.");
+        }
     }
 
     //Case 5 - Search Submenu Handlers

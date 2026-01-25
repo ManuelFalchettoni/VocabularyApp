@@ -55,17 +55,17 @@ public class FileService {
     }
 
     // Method to delete a word from the vocabulary
-    public void deleteWord(String germanWord, List<VocabularyEntry> vocabulary) {
-        List<VocabularyEntry> updatedVocabulary = vocabulary.stream() // Create a stream from the vocabulary list
-                .filter(entry -> !entry.german().equalsIgnoreCase(germanWord))// Remove the entry with the specified German word
-                .toList(); // Collect the remaining entries into a new list
-        try {
-            saveVocabulary(new ArrayList<>(updatedVocabulary));// Convert back to ArrayList
-            System.out.println("Word '" + germanWord + "' deleted from vocabulary if it existed.");
-        } catch (Exception e) {
-            System.err.println("Error saving the file: " + e.getMessage());
+    public boolean deleteWord(String germanWord, List<VocabularyEntry> vocabulary) {
+        boolean removed = vocabulary.removeIf(entry -> entry.german().equalsIgnoreCase(germanWord)); // Remove entry if it matches the german word
+        if (removed) {
+            try {
+                saveVocabulary(new ArrayList<>(vocabulary)); // Save the updated vocabulary
+                System.out.println("✅ Word '" + germanWord + "' successfully deleted.");
+            } catch (Exception e) {
+                System.err.println("Error saving the file: " + e.getMessage());
+            }
         }
-
+        return removed;
     }
 
     // Method to search for a word in the vocabulary
@@ -142,6 +142,10 @@ public class FileService {
     //Method to count total words in the vocabulary
     public int countTotalWords(List<VocabularyEntry> vocabulary) {
         return vocabulary.size(); // Return the size of the vocabulary list
+    }
+
+    public int countWordsByLevel(List<VocabularyEntry> vocabulary){
+
     }
 
     //Method to get a random word from the vocabulary
