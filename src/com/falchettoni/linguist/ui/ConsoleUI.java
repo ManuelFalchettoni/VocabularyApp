@@ -1,5 +1,8 @@
 package com.falchettoni.linguist.ui;
 
+import com.falchettoni.linguist.exceptions.DatabaseException;
+import com.falchettoni.linguist.exceptions.DuplicateWordException;
+import com.falchettoni.linguist.exceptions.WordNotFoundException;
 import com.falchettoni.linguist.model.VocabularyEntry;
 import com.falchettoni.linguist.repository.VocabularyRepository;
 
@@ -13,7 +16,7 @@ public class ConsoleUI {
     private final VocabularyRepository repository; // Vocabulary repository interface
     private List<VocabularyEntry> myNotebook; // Load existing vocabulary entries
 
-    public ConsoleUI(VocabularyRepository repository){
+    public ConsoleUI(VocabularyRepository repository) {
         this.scanner = new Scanner(System.in);
         this.repository = repository;
 
@@ -24,6 +27,7 @@ public class ConsoleUI {
             this.myNotebook = new java.util.ArrayList<>(); // Initialize an empty list on error
         }
     }
+
     public void start() {
 
         System.out.println("--- WELCOME TO YOUR LANGUAGES NOTEBOOK (Java 25) ---");
@@ -55,7 +59,7 @@ public class ConsoleUI {
     //Case 1 add word
     private void handleAddWord() {
         System.out.print("Enter the German word: ");
-        var de = scanner.nextLine();
+        var word = scanner.nextLine();
 
         System.out.print("Enter the English translation: ");
         var en = scanner.nextLine();
@@ -67,12 +71,17 @@ public class ConsoleUI {
         int level = parseLevelInput(1); // Default level is 1
         // Object Creation & Storage
         // We instantiate the record and add it to our collection
-        if (repository.isDuplicate(de, myNotebook)) {
-            System.out.println("This word already exists in your vocabulary list. Duplicate entries are not allowed.");
-            // Skip adding this word
-        } else {
-            myNotebook.add(new VocabularyEntry(de, en, type, level));
-            System.out.println("Word successfully saved to your list!");
+        var newEntry = new VocabularyEntry(word, en, type, level);
+        try {
+            repository.addWord(newEntry, myNotebook);
+            System.out.println("Word successfully added to your vocabulary list!");
+        } catch (DuplicateWordException e) {
+            System.out.println(e.getMessage());
+        } catch (DatabaseException e) {
+            System.out.println("An error occurred while saving the word. " + e.getMessage());
+            if (e.getCause() != null) {
+                System.out.println("Technical cause: " + e.getCause().getMessage());
+            }
         }
     }
 
@@ -94,8 +103,9 @@ public class ConsoleUI {
     private void handleUpdateWord() {
         System.out.println("Enter the German word you want to update: ");
         var germanWord = scanner.nextLine();// Input for the German word to update
-        var entry = repository.findByWord(germanWord, myNotebook);// Search for the word in the vocabulary
-        if (entry != null) {// If the word is found
+        try {
+            var entry = repository.findByWord(germanWord, myNotebook);// Search for the word in the vocabulary
+
             System.out.println("Current entry: " + entry); // Display current entry
             // Prompt for new values
             System.out.print("Enter the new English translation (leave blank to keep current): ");
@@ -117,8 +127,8 @@ public class ConsoleUI {
             // Update the vocabulary list
             repository.updateWord(germanWord, entry, myNotebook);
             System.out.println("Word successfully updated!");
-        } else { // If the word is not found
-            System.out.println("Word not found in your vocabulary list.");
+        } catch (WordNotFoundException e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -207,7 +217,7 @@ public class ConsoleUI {
             int level = Integer.parseInt(input);
             return (level >= 1 && level <= 5) ? level : currentLevel; // Validate level range
         } catch (NumberFormatException e) {
-            System.out.println("⚠️ Invalid input. Keeping current level.");
+            System.out.println("Invalid input. Keeping current level.");
             return currentLevel; // Keep current level on parse error
         }
     }
@@ -219,7 +229,7 @@ public class ConsoleUI {
         try {
             return Integer.parseInt(input);
         } catch (NumberFormatException e) {
-            System.out.println("⚠️ Invalid input. Keeping current value.");
+            System.out.println("Invalid input. Keeping current value.");
             return currentValue; // Keep current value on parse error
         }
     }
@@ -231,7 +241,7 @@ public class ConsoleUI {
         try {
             return Integer.parseInt(input);
         } catch (NumberFormatException e) {
-            System.out.println("⚠️ Invalid input. Keeping current value.");
+            System.out.println("Invalid input. Keeping current value.");
             return currentValue; // Keep current value on parse error
         }
     }

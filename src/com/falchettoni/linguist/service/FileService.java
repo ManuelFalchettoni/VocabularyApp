@@ -1,12 +1,14 @@
 package com.falchettoni.linguist.service;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import com.falchettoni.linguist.exceptions.DatabaseException;
+import com.falchettoni.linguist.exceptions.DuplicateWordException;
+import com.falchettoni.linguist.exceptions.WordNotFoundException;
 import com.falchettoni.linguist.model.VocabularyEntry;
 import com.falchettoni.linguist.repository.VocabularyRepository;
 
@@ -23,10 +25,10 @@ public class FileService implements VocabularyRepository {
     public void saveVocabulary(List<VocabularyEntry> vocabulary) {
         try (PrintWriter writer = new PrintWriter(filePath)) { // Create PrintWriter to write to the file
             for (VocabularyEntry entry : vocabulary) {
-                writer.printf("%s;%s;%s;%d%n", entry.german(), entry.english(), entry.type(), entry.level()); // Write each entry in the specified format
+                writer.printf("%s;%s;%s;%d%n", entry.word(), entry.english(), entry.type(), entry.level()); // Write each entry in the specified format
             }
-        } catch (FileNotFoundException e) {
-            System.err.println("Error saving vocabulary: " + e.getMessage());
+        } catch (Exception e) {
+            throw new DatabaseException("Failed to save vocabulary to file", e);
         }
     }
 
@@ -51,22 +53,34 @@ public class FileService implements VocabularyRepository {
                     vocabulary.add(new VocabularyEntry(de, en, type, level)); // Create and add the entry
                 }
             }
-        } catch (FileNotFoundException e) {
-            System.err.println("Error loading vocabulary: " + e.getMessage());
+        } catch (Exception e) {
+            throw new DatabaseException("Failed to load vocabulary from file" , e);
         }
         return vocabulary;
+    }
+
+    //Method to add a new word to the vocabulary
+    @Override
+    public void addWord(VocabularyEntry entry, List<VocabularyEntry> vocabulary) {
+        boolean duplicated = isDuplicate(entry.word(), vocabulary); // Check for duplicates
+        if (duplicated) {
+            throw new DuplicateWordException(entry.word());
+        }else {
+            vocabulary.add(entry); // Add the new entry to the vocabulary
+            saveVocabulary(new ArrayList<>(vocabulary));
+        }// Save the updated vocabulary
     }
 
     // Method to delete a word from the vocabulary
     @Override
     public boolean deleteWord(String word, List<VocabularyEntry> vocabulary) {
-        boolean removed = vocabulary.removeIf(entry -> entry.german().equalsIgnoreCase(word)); // Remove entry if it matches the german word
+        boolean removed = vocabulary.removeIf(entry -> entry.word().equalsIgnoreCase(word)); // Remove entry if it matches the german word
         if (removed) {
             try {
                 saveVocabulary(new ArrayList<>(vocabulary)); // Save the updated vocabulary
                 System.out.println("✅ Word '" + word + "' successfully deleted.");
             } catch (Exception e) {
-                System.err.println("Error saving the file: " + e.getMessage());
+                throw new DatabaseException("Error saving the file after deletion", e);
             }
         }
         return removed;
@@ -76,9 +90,9 @@ public class FileService implements VocabularyRepository {
     @Override
     public VocabularyEntry findByWord(String word, List<VocabularyEntry> vocabulary) {
         return vocabulary.stream()
-                .filter(e -> e.german().equalsIgnoreCase(word))
+                .filter(e -> e.word().equalsIgnoreCase(word))
                 .findFirst()
-                .orElse(null);
+                .orElseThrow(() -> new WordNotFoundException(word));
     }
 
     //Method to update a word in the vocabulary
@@ -86,7 +100,7 @@ public class FileService implements VocabularyRepository {
     public void updateWord(String word, VocabularyEntry updatedEntry, List<VocabularyEntry> vocabulary) {
         boolean found = false;
         for (int i = 0; i < vocabulary.size(); i++) {
-            if (vocabulary.get(i).german().equalsIgnoreCase(word)) {
+            if (vocabulary.get(i).word().equalsIgnoreCase(word)) {
                 vocabulary.set(i, updatedEntry); // Replace the old entry with the updated one
                 found = true;
                 break;
@@ -97,10 +111,10 @@ public class FileService implements VocabularyRepository {
                 saveVocabulary(new ArrayList<>(vocabulary));
                 System.out.println("✅ Word '" + word + "' successfully updated.");
             } catch (Exception e) {
-                System.err.println("Error saving the file: " + e.getMessage());
+                throw new DatabaseException("Error saving the file after update", e);
             }
         } else {
-            System.out.println("Word '" + word + "' not found in vocabulary. No update performed.");
+            throw new WordNotFoundException(word);
         }
     }
 
@@ -108,7 +122,7 @@ public class FileService implements VocabularyRepository {
     @Override
     public boolean isDuplicate(String word, List<VocabularyEntry> currentList) { // Check for duplicates
         return currentList.stream()
-                .anyMatch(entry -> entry.german().equalsIgnoreCase(word.trim()));// Check for duplicates ignoring case and whitespace
+                .anyMatch(entry -> entry.word().equalsIgnoreCase(word.trim()));// Check for duplicates ignoring case and whitespace
     }
 
     //Method to get all words of a specific level
@@ -134,7 +148,7 @@ public class FileService implements VocabularyRepository {
         try {
             saveVocabulary(new ArrayList<>()); // Save an empty list to the file
         } catch (Exception e) {
-            System.err.println("Error clearing vocabulary: " + e.getMessage());
+            throw new DatabaseException("Error clearing the vocabulary file", e);
         }
 
     }

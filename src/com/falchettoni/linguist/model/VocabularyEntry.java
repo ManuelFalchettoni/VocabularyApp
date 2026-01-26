@@ -5,11 +5,11 @@ package com.falchettoni.linguist.model;
  * It automatically handles fields, getters, and the constructor.
  * This specific record stores our language learning data.
  */
-public record VocabularyEntry(String german, String english, String type, Integer level) {
+public record VocabularyEntry(String word, String english, String type, Integer level) {
     @Override
     public String toString() {
         // Formats the output: [NOUN] Das Haus -> The House
-        return String.format("[%s] %s -> %s (Level: %d)", type.toUpperCase(), german, english, level);
+        return String.format("[%s] %s -> %s (Level: %d)", type.toUpperCase(), word, english, level);
     }
 }
 
