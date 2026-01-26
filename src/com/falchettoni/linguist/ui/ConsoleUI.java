@@ -31,10 +31,10 @@ public class ConsoleUI {
         // The 'while(true)' loop keeps the program running until the user decides to exit.
         while (true) { //
             System.out.println("\nOptions: Add word (1) - View list (2) - Update (3)");
-            System.out.println("\nOptions: Delete (4) - Search (5) - Exit (6)");
-            System.out.println("\nOptions: Clear all (7)");
+            System.out.println("\nDelete (4) - Search (5) - Exit (6)");
+            System.out.println("\nClear all (7)");
             System.out.print("Select an option: ");
-            var option = parseStringInput(8); // Default option is 8 (invalid)
+            var option = parseStringInput(6); // Default option is 6 (Exit)
 
             switch (option) {
                 case 1 -> handleAddWord();//Data Acquisition
