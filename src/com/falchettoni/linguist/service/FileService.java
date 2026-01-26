@@ -105,6 +105,7 @@ public class FileService implements VocabularyRepository {
     }
 
     //Method to search for duplicates in the vocabulary
+    @Override
     public boolean isDuplicate(String word, List<VocabularyEntry> currentList) { // Check for duplicates
         return currentList.stream()
                 .anyMatch(entry -> entry.german().equalsIgnoreCase(word.trim()));// Check for duplicates ignoring case and whitespace
@@ -128,6 +129,7 @@ public class FileService implements VocabularyRepository {
 
 
     //Method to clear the entire vocabulary
+    @Override
     public void clearVocabulary() {
         try {
             saveVocabulary(new ArrayList<>()); // Save an empty list to the file
@@ -145,7 +147,7 @@ public class FileService implements VocabularyRepository {
 
     // Method to count total words by level
     @Override
-    public int countByLevel(int level, List<VocabularyEntry> vocabulary){
+    public int countByLevel(int level, List<VocabularyEntry> vocabulary) {
         return (int) vocabulary.stream()
                 .filter(e -> e.level() == level)
                 .count();
@@ -154,18 +156,9 @@ public class FileService implements VocabularyRepository {
 
     //Method to count by type
     @Override
-    public int countByType(String type, List<VocabularyEntry> vocabulary){
+    public int countByType(String type, List<VocabularyEntry> vocabulary) {
         return (int) vocabulary.stream()
                 .filter(e -> e.type().equalsIgnoreCase(type))
                 .count();
-    }
-
-    //Method to get a random word from the vocabulary
-    public VocabularyEntry getRandomWord(List<VocabularyEntry> vocabulary) {
-        if (vocabulary.isEmpty()) {
-            return null; // Return null if the vocabulary is empty
-        }
-        int randomIndex = (int) (Math.random() * vocabulary.size()); // Generate a random index
-        return vocabulary.get(randomIndex); // Return the random entry
     }
 }

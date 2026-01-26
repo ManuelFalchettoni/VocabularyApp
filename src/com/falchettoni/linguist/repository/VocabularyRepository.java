@@ -9,6 +9,7 @@ public interface VocabularyRepository {
     void saveVocabulary(List<VocabularyEntry> vocabulary); // Method to save vocabulary entries
     boolean deleteWord(String word, List<VocabularyEntry> vocabulary); // Method to delete a vocabulary entry by  word
     void updateWord (String word,VocabularyEntry newEntry, List<VocabularyEntry> vocabulary); // Method to update a vocabulary entry by  word
+    void clearVocabulary(); // Method to clear all vocabulary entries
 
     List<VocabularyEntry> findByType(String type, List<VocabularyEntry> vocabulary); // Method to find vocabulary entries by type
     List<VocabularyEntry> findByLevel(int level, List<VocabularyEntry> vocabulary); // Method to find vocabulary entries by level
@@ -17,4 +18,6 @@ public interface VocabularyRepository {
     int countByType(String type, List<VocabularyEntry> vocabulary); // Method to count vocabulary entries by type
     int countByLevel(int level, List<VocabularyEntry> vocabulary); // Method to count vocabulary entries by level
     int countTotal(List<VocabularyEntry> vocabulary); // Method to count total vocabulary entries
+
+    boolean isDuplicate(String word, List<VocabularyEntry> currentList); // Method to check for duplicate entries
 }

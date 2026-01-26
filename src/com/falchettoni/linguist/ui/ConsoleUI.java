@@ -1,7 +1,7 @@
 package com.falchettoni.linguist.ui;
 
 import com.falchettoni.linguist.model.VocabularyEntry;
-import com.falchettoni.linguist.service.FileService;
+import com.falchettoni.linguist.repository.VocabularyRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,15 +9,16 @@ import java.util.Scanner;
 
 public class ConsoleUI {
     private final Scanner scanner; // Scanner for user input
-    private final FileService fileService; // File service for data persistence
+
+    private final VocabularyRepository repository; // Vocabulary repository interface
     private List<VocabularyEntry> myNotebook; // Load existing vocabulary entries
 
-    public ConsoleUI(){
+    public ConsoleUI(VocabularyRepository repository){
         this.scanner = new Scanner(System.in);
-        this.fileService = new FileService("vocabulary.csv");
+        this.repository = repository;
 
         try {
-            this.myNotebook = fileService.loadVocabulary(); // Load existing vocabulary entries
+            this.myNotebook = repository.loadVocabulary(); // Load existing vocabulary entries
         } catch (Exception e) {
             System.out.println("Error loading vocabulary. Starting with an empty notebook.");
             this.myNotebook = new java.util.ArrayList<>(); // Initialize an empty list on error
@@ -66,7 +67,7 @@ public class ConsoleUI {
         int level = parseLevelInput(1); // Default level is 1
         // Object Creation & Storage
         // We instantiate the record and add it to our collection
-        if (fileService.isDuplicate(de, myNotebook)) {
+        if (repository.isDuplicate(de, myNotebook)) {
             System.out.println("This word already exists in your vocabulary list. Duplicate entries are not allowed.");
             // Skip adding this word
         } else {
@@ -85,7 +86,7 @@ public class ConsoleUI {
             // Using a method reference to print each item in the list
             myNotebook.forEach(System.out::println);
         }
-        System.out.println("Number of words in your notebook: " + fileService.countTotal(myNotebook));
+        System.out.println("Number of words in your notebook: " + repository.countTotal(myNotebook));
         System.out.println("--- END OF LIST ---");
     }
 
@@ -93,7 +94,7 @@ public class ConsoleUI {
     private void handleUpdateWord() {
         System.out.println("Enter the German word you want to update: ");
         var germanWord = scanner.nextLine();// Input for the German word to update
-        var entry = fileService.findByWord(germanWord, myNotebook);// Search for the word in the vocabulary
+        var entry = repository.findByWord(germanWord, myNotebook);// Search for the word in the vocabulary
         if (entry != null) {// If the word is found
             System.out.println("Current entry: " + entry); // Display current entry
             // Prompt for new values
@@ -114,7 +115,7 @@ public class ConsoleUI {
                     newLevelInput // Updated level
             );
             // Update the vocabulary list
-            fileService.updateWord(germanWord, entry, myNotebook);
+            repository.updateWord(germanWord, entry, myNotebook);
             System.out.println("Word successfully updated!");
         } else { // If the word is not found
             System.out.println("Word not found in your vocabulary list.");
@@ -125,7 +126,7 @@ public class ConsoleUI {
     private void handleDeleteWord() {
         System.out.println("Enter the German word you want to delete: ");
         var germanWordToDelete = scanner.nextLine(); // Input for the German word to delete
-        boolean deleted = fileService.deleteWord(germanWordToDelete, myNotebook); // Attempt to delete the word
+        boolean deleted = repository.deleteWord(germanWordToDelete, myNotebook); // Attempt to delete the word
         if (!deleted) { // If the word was not found and thus not deleted
             System.out.println("Word not found in your vocabulary list. No deletion performed.");
         }
@@ -135,7 +136,7 @@ public class ConsoleUI {
     private void handleSearchWord() {
         System.out.println("Enter the German word you want to search for: ");
         var germanWordToSearch = scanner.nextLine(); // Input for the German word to search
-        var foundEntry = fileService.findByWord(germanWordToSearch, myNotebook); //
+        var foundEntry = repository.findByWord(germanWordToSearch, myNotebook); //
         if (foundEntry != null) { // If the word is found
             System.out.println("Found entry: " + foundEntry);
         } else { // If the word is not found
@@ -146,24 +147,26 @@ public class ConsoleUI {
     private void handleViewByLevel() {
         System.out.println("Enter the level (1-5) you want to view: ");
         int levelToView = parseIntegerInput(1); // Default level is 1
-        var resultsByLevel = fileService.findByLevel(levelToView, myNotebook);
+        var resultsByLevel = repository.findByLevel(levelToView, myNotebook);
         if (resultsByLevel.isEmpty()) {
             System.out.println("No words found at level " + levelToView + ".");
         } else {
             System.out.println("Words at level " + levelToView + ":");
             resultsByLevel.forEach(System.out::println);
+            System.out.println(repository.countByLevel(levelToView, myNotebook));
         }
     }
 
     private void handleViewByType() {
         System.out.println("Enter the word type you want to view (e.g., Noun, Verb): ");
         var typeToView = scanner.nextLine(); // Input for the type to view
-        var resultsByType = fileService.findByType(typeToView, myNotebook);
+        var resultsByType = repository.findByType(typeToView, myNotebook);
         if (resultsByType.isEmpty()) {
             System.out.println("No words found of type '" + typeToView + "'.");
         } else {
             System.out.println("Words of type '" + typeToView + "':");
             resultsByType.forEach(System.out::println);
+            System.out.println(repository.countByType(typeToView, myNotebook));
         }
     }
 
@@ -182,7 +185,7 @@ public class ConsoleUI {
     //Case 6 exit
     private void handleExit() {
         System.out.println("Exiting the program...");
-        fileService.saveVocabulary(new ArrayList<>(myNotebook));// Save vocabulary before exiting
+        repository.saveVocabulary(new ArrayList<>(myNotebook));// Save vocabulary before exiting
         System.out.println("Happy learning! Bis bald!");
         // closing the scanner to prevent resource leaks
         scanner.close();
@@ -190,7 +193,7 @@ public class ConsoleUI {
 
     //Case 7 clear all
     private void handleClearAll() {
-        fileService.clearVocabulary(); // Clear the vocabulary list
+        repository.clearVocabulary(); // Clear the vocabulary list
         myNotebook.clear(); // Clear the in-memory list
         System.out.println("All entries have been cleared from your vocabulary list.");
     }
