@@ -38,7 +38,7 @@ public class ConsoleUI {
             System.out.println("\nDelete (4) - Search (5) - Exit (6)");
             System.out.println("\nClear all (7)");
             System.out.print("Select an option: ");
-            var option = parseStringInput(6); // Default option is 6 (Exit)
+            var option = parseStringInput(); // Default option is 6 (Exit)
 
             switch (option) {
                 case 1 -> handleAddWord();//Data Acquisition
@@ -182,7 +182,7 @@ public class ConsoleUI {
 
     private void handleSearchList() {
         System.out.println("Search for word (1) - Search for level (2) - Search for type (3) - Exit search (4): ");
-        var searchOption = parseIntegerInput(1); // Default search option is 1
+        var searchOption = parseIntegerInput(4); // Default search option is 1
         switch (searchOption) {
             case 1 -> handleSearchWord();
             case 2 -> handleViewByLevel();
@@ -234,15 +234,15 @@ public class ConsoleUI {
         }
     }
 
-    private int parseStringInput(int currentValue) {
+    private int parseStringInput() {
         String input = scanner.nextLine();// Read user input
-        if (input.isBlank()) return currentValue; // Keep current value if input is blank
+        if (input.isBlank()) return 6; // Keep current value if input is blank
 
         try {
             return Integer.parseInt(input);
         } catch (NumberFormatException e) {
             System.out.println("Invalid input. Keeping current value.");
-            return currentValue; // Keep current value on parse error
+            return 6; // Keep current value on parse error
         }
     }
 }
