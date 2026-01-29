@@ -58,3 +58,6 @@ gen/
 # --- OS SPECIFIC ---
 .DS_Store
 Thumbs.db
+
+# Maven
+target/
