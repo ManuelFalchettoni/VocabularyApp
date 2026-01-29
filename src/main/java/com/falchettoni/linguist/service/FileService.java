@@ -63,16 +63,16 @@ public class FileService implements VocabularyRepository {
         return new ArrayList<>(); // Return empty list if no file found
     }
 
-private List<VocabularyEntry> parseStream(InputStream is) {
+List<VocabularyEntry> parseStream(InputStream is) {
     List<VocabularyEntry> vocabulary = new ArrayList<>();
     String line;
     try (BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) { // Put is in try-with-resources to ensure it gets closed
         while ((line = reader.readLine()) != null) { // Read each line
             String[] parts = line.split(";");
             if (parts.length == 4) {
-                String de = parts[0];
-                String en = parts[1];
-                String type = parts[2];
+                String de = parts[0].trim();
+                String en = parts[1].trim();
+                String type = parts[2].trim();
                 int level = Integer.parseInt(parts[3].trim()); // Trim to avoid whitespace issues
                 vocabulary.add(new VocabularyEntry(de, en, type, level)); // Create and add the entry
             }
