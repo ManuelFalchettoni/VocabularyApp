@@ -108,8 +108,8 @@ public class ConsoleUI {
 
             System.out.println("Current entry: " + entry); // Display current entry
             // Prompt for new values
-            System.out.print("Enter the new English translation (leave blank to keep current): ");
-            var newEnglish = scanner.nextLine(); // Input for new English translation
+            System.out.print("Enter the new translation (leave blank to keep current): ");
+            var newTranslation = scanner.nextLine(); // Input for new English translation
 
             System.out.print("Enter the new word type (leave blank to keep current): ");
             var newType = scanner.nextLine(); // Input for new word type
@@ -120,7 +120,7 @@ public class ConsoleUI {
             // Create updated entry with new values or existing ones
             entry = new VocabularyEntry(
                     germanWord,
-                    newEnglish.isBlank() ? entry.english() : newEnglish,// Keep current if blank
+                    newTranslation.isBlank() ? entry.translation() : newTranslation,// Keep current if blank
                     newType.isBlank() ? entry.type() : newType,// Keep current if blank
                     newLevelInput // Updated level
             );
